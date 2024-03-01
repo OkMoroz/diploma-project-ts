@@ -173,6 +173,10 @@ export class TaskManager {
   
 
     public filterTasks(filter: TaskFilter): Task[] {
+      if (this._tasks === null) {
+        return [];
+      }
+    
       return this._tasks.taskList.filter((task) => {
         return (
           (!filter.type || task.type === filter.type) &&
@@ -184,7 +188,12 @@ export class TaskManager {
       });
     }
     
+    
     public bubbleSortTasks(field: SortType): Task[] {
+      if (this._tasks === null) {
+        return [];
+      }
+      
       let length = this._tasks.taskList.length;
       let task = this._tasks.taskList;
     
@@ -199,29 +208,33 @@ export class TaskManager {
       }
       return this._tasks.taskList;
     }
-  }    
     
   
-  public choiceSortTasks(field: SortType): Task[] {
-    const tasks = this._tasks.taskList;
-    const length = tasks.length;
-
-    for (let i = 0; i < length - 1; i++) {
-      let minIndex = i;
-
-      for (let j = i + 1; j < length; j++) {
-        if (tasks[j][field] < tasks[minIndex][field]) {
-          minIndex = j;
+    public choiceSortTasks(field: SortType): Task[] {
+      if (this._tasks === null) {
+        return [];
+      }
+    
+      const tasks = this._tasks.taskList;
+      const length = tasks.length;
+    
+      for (let i = 0; i < length - 1; i++) {
+        let minIndex = i;
+    
+        for (let j = i + 1; j < length; j++) {
+          if (tasks[j][field] < tasks[minIndex][field]) {
+            minIndex = j;
+          }
+        }
+    
+        if (minIndex !== i) {
+          [tasks[i], tasks[minIndex]] = [tasks[minIndex], tasks[i]];
         }
       }
-
-      if (minIndex !== i) {
-        [tasks[i], tasks[minIndex]] = [tasks[minIndex], tasks[i]];
-      }
+    
+      return tasks;
     }
-
-    return tasks;
-  }
+    
 
   private canManageTasks(): boolean {
     return this.role === "admin";
