@@ -6,41 +6,41 @@ import {
 } from "../enums/enum";
 
 interface ITask {
-  type: TaskTypesEnum;
-  name: string;
-  description: string;
-  priority: TaskPrioritiesEnum;
-  status: TaskStatusesEnum;
+  readonly type: TaskTypesEnum;
+  readonly name: string;
+  readonly description: string;
+  readonly priority: TaskPrioritiesEnum;
+  readonly status: TaskStatusesEnum;
+  readonly term: string;
 }
 
 export class Task implements ITask {
-  readonly id: number = Date.now();
-  readonly dateCreated: string = new Date().toISOString();
+  readonly id: number;
+  readonly dateCreated: string;
+  readonly name: string;
+  readonly description: string;
+  readonly type: TaskTypesEnum;
+  readonly priority: TaskPrioritiesEnum;
+  readonly status: TaskStatusesEnum;
+  readonly term: string;
   employee: Employee | null = null;
 
   constructor(
-    public readonly name: string,
-    public readonly description: string,
-    public readonly type: TaskTypesEnum,
-    public priority: TaskPrioritiesEnum,
-    public status: TaskStatusesEnum,
-    public readonly term: string
-  ) {}
-
-  getPriority(): TaskPrioritiesEnum {
-    return this.priority;
-  }
-
-  setPriority(priority: TaskPrioritiesEnum): void {
+    name: string,
+    description: string,
+    type: TaskTypesEnum,
+    priority: TaskPrioritiesEnum,
+    status: TaskStatusesEnum,
+    term: string
+  ) {
+    this.name = name;
+    this.description = description;
+    this.type = type;
     this.priority = priority;
-  }
-
-  getStatus(): TaskStatusesEnum {
-    return this.status;
-  }
-
-  setStatus(status: TaskStatusesEnum): void {
     this.status = status;
+    this.term = term;
+    this.id = Date.now();
+    this.dateCreated = new Date().toISOString();
   }
 
   getEmployee(): Employee | null {
