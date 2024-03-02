@@ -2,7 +2,6 @@ import { SortAlgorythm, SortType, EmployeeRole } from "./types/types";
 import { TaskStatusesEnum } from "./enums/enum";
 import { Task } from "./modules/Task";
 import { Employee } from "./modules/Employee";
-import { TaskList } from "./modules/TaskList";
 import { TaskManager } from "./modules/TaskManager";
 import { EmployeeManager } from "./modules/EmployeeManager";
 import { TaskFilter } from "./modules/TaskFilter";
