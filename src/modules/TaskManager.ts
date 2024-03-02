@@ -187,24 +187,25 @@ export class TaskManager {
     });
   }
 
-  public bubbleSortTasks(field: SortType): Task[] {
+  public bubbleSortTasks(field: keyof Task): Task[] {
     if (this._tasks === null) {
       return [];
     }
 
-    const length = this._tasks.taskList.length;
-    const task = this._tasks.taskList;
+    const tasks: Task[] = this._tasks.taskList.slice();
+
+    const length = tasks.length;
 
     for (let i = 0; i < length - 1; i++) {
       for (let j = 0; j < length - 1 - i; j++) {
-        if (task[j][field] > task[j + 1][field]) {
-          let temp = task[j];
-          task[j] = task[j + 1];
-          task[j + 1] = temp;
+        if (tasks[j][field] > tasks[j + 1][field]) {
+          let temp = tasks[j];
+          tasks[j] = tasks[j + 1];
+          tasks[j + 1] = temp;
         }
       }
     }
-    return this._tasks.taskList;
+    return tasks;
   }
 
   public choiceSortTasks(field: keyof Task): Task[] {
