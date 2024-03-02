@@ -128,6 +128,7 @@ export class EmployeeManager implements Observer {
           this.employees.employeeList.find(
             (employee) => employee.id === newEmployeeId
           ),
+          фс,
         ];
     if (employees.some((employee) => !employee)) {
       this.logger.log(`Invalid employee ID(s) provided for reassignment.`);

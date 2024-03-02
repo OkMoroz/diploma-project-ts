@@ -11,7 +11,14 @@ export class TaskManager {
   private _tasks: TaskList | null = null;
   private logger: Logger = Logger.getInstance();
   private _role: EmployeeRole;
-  private _taskList: Task[] = [];
+
+  public get role(): EmployeeRole {
+    return this._role;
+  }
+
+  public set role(role: EmployeeRole) {
+    this._role = role;
+  }
 
   constructor(role: EmployeeRole) {
     this._role = role;
@@ -28,14 +35,6 @@ export class TaskManager {
     }
 
     return this._tasks.taskList.filter((elem) => elem.employee !== null);
-  }
-
-  public get role(): EmployeeRole {
-    return this._role;
-  }
-
-  public set role(role: EmployeeRole) {
-    this._role = role;
   }
 
   public createNewTask(task: Task): void {
@@ -85,7 +84,7 @@ export class TaskManager {
     }
 
     if (this._tasks === null) {
-      this.logger.log("Task list is not initialized");
+      this.logger.log(`Task list is not initialized`);
       return;
     }
 
@@ -114,10 +113,10 @@ export class TaskManager {
   public deleteTask(id: number): TaskList | undefined {
     if (!this.canManageTasks()) {
       this.logger.log(
-        "Permission denied: Insufficient permission to delete tasks"
+        `Permission denied: Insufficient permission to delete tasks`
       );
       throw new Error(
-        "Permission denied: Insufficient permission to delete tasks"
+        `Permission denied: Insufficient permission to delete tasks`
       );
     } else {
       if (this._tasks === null || this._tasks === undefined) {
@@ -136,20 +135,21 @@ export class TaskManager {
       }
     }
   }
+
   public renewTaskStatus(
     id: number,
     status: TaskStatusesEnum
   ): TaskList | boolean {
     if (!this.canManageTasks()) {
       this.logger.log(
-        "Permission denied: Insufficient permission to renew tasks"
+        `Permission denied: Insufficient permission to renew tasks`
       );
       throw new Error(
-        "Permission denied: Insufficient permission to renew tasks"
+        `Permission denied: Insufficient permission to renew tasks`
       );
     } else {
       if (this._tasks === null) {
-        this.logger.log("Task list is not initialized");
+        this.logger.log(`Task list is not initialized`);
         return false;
       }
 
@@ -157,84 +157,80 @@ export class TaskManager {
 
       if (element === undefined || element.employee === undefined) {
         this.logger.log(
-          "Permission denied: Unable to change task status without an employee"
+          `Permission denied: Unable to change task status without an employee`
         );
         throw new Error(
-          "Permission denied: Unable to change task status without an employee"
+          `Permission denied: Unable to change task status without an employee`
         );
       }
+    }
+    element.setStatus(status);
 
-      element.setStatus(status);
+    this.logger.log(
+      `Task status for id: [${id}] has been successfully updated`
+    );
+  }
 
-      this.logger.log(
-        `Task status for id: [${id}] has been successfully updated`
+  public filterTasks(filter: TaskFilter): Task[] {
+    if (this._tasks === null) {
+      return [];
+    }
+
+    return this._tasks.taskList.filter((task) => {
+      return (
+        (!filter.type || task.type === filter.type) &&
+        (!filter.priority || task.priority === filter.priority) &&
+        (!filter.status || task.status === filter.status) &&
+        (!filter.term || task.term === filter.term) &&
+        (!filter.employee || task.employee === filter.employee)
       );
-    }
-  
+    });
+  }
 
-    public filterTasks(filter: TaskFilter): Task[] {
-      if (this._tasks === null) {
-        return [];
-      }
-    
-      return this._tasks.taskList.filter((task) => {
-        return (
-          (!filter.type || task.type === filter.type) &&
-          (!filter.priority || task.priority === filter.priority) &&
-          (!filter.status || task.status === filter.status) &&
-          (!filter.term || task.term === filter.term) &&
-          (!filter.employee || task.employee === filter.employee)
-        );
-      });
+  public bubbleSortTasks(field: SortType): Task[] {
+    if (this._tasks === null) {
+      return [];
     }
-    
-    
-    public bubbleSortTasks(field: SortType): Task[] {
-      if (this._tasks === null) {
-        return [];
-      }
-      
-      let length = this._tasks.taskList.length;
-      let task = this._tasks.taskList;
-    
-      for (let i = 0; i < length - 1; i++) {
-        for (let j = 0; j < length - 1 - i; j++) {
-          if (task[j][field] > task[j + 1][field]) {
-            let temp = task[j];
-            task[j] = task[j + 1];
-            task[j + 1] = temp;
-          }
+
+    const length = this._tasks.taskList.length;
+    const task = this._tasks.taskList;
+
+    for (let i = 0; i < length - 1; i++) {
+      for (let j = 0; j < length - 1 - i; j++) {
+        if (task[j][field] > task[j + 1][field]) {
+          let temp = task[j];
+          task[j] = task[j + 1];
+          task[j + 1] = temp;
         }
       }
-      return this._tasks.taskList;
     }
-    
-  
-    public choiceSortTasks(field: SortType): Task[] {
-      if (this._tasks === null) {
-        return [];
-      }
-    
-      const tasks = this._tasks.taskList;
-      const length = tasks.length;
-    
-      for (let i = 0; i < length - 1; i++) {
-        let minIndex = i;
-    
-        for (let j = i + 1; j < length; j++) {
-          if (tasks[j][field] < tasks[minIndex][field]) {
-            minIndex = j;
-          }
-        }
-    
-        if (minIndex !== i) {
-          [tasks[i], tasks[minIndex]] = [tasks[minIndex], tasks[i]];
+    return this._tasks.taskList;
+  }
+
+  public choiceSortTasks(field: keyof Task): Task[] {
+    if (this._tasks === null || this._tasks.taskList === null) {
+      return [];
+    }
+
+    const tasks = this._tasks.taskList;
+    const length = tasks.length;
+
+    for (let i = 0; i < length - 1; i++) {
+      let minIndex = i;
+
+      for (let j = i + 1; j < length; j++) {
+        if (tasks[j][field] < tasks[minIndex][field]) {
+          minIndex = j;
         }
       }
-    
-      return tasks;
+
+      if (minIndex !== i) {
+        [tasks[i], tasks[minIndex]] = [tasks[minIndex], tasks[i]];
+      }
     }
-    
+
+    return tasks;
+  }
 
   private canManageTasks(): boolean {
     return this.role === "admin";
